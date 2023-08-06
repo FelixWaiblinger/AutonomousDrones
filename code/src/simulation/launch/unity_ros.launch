@@ -1,0 +1,27 @@
+<launch>
+
+    <arg name="name" default="Quadrotor"/>
+    <arg name="port_from_unity" default="10000"/>
+
+	<!-- connect from Unity to ROS -->
+    <node pkg="simulation" type="unity_ros" name="unity_ros">
+
+        <param name="port_from_unity" type="str"
+            value="$(arg port_from_unity)"/>
+            
+        <param name="name" type="str"
+            value="$(arg name)/true_body"/>
+
+        <!-- convert Unity names to ROS topics -->
+        <remap from="~$(arg name)/Sensors/IMU/pose"
+            to="true_pose"/>
+        <remap from="~$(arg name)/Sensors/IMU/twist"
+            to="true_twist"/>
+        <remap from="~$(arg name)/Sensors/DepthCamera/image_raw"
+            to="realsense/depth/image"/>
+        <remap from="~$(arg name)/Sensors/DepthCamera/camera_info"
+            to="realsense/depth/camera_info"/>
+
+    </node>
+
+</launch>

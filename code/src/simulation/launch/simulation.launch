@@ -1,0 +1,56 @@
+<launch>
+
+      <!-- start Unity -->
+      <node name="simulation" pkg="simulation" type="Two_Drones.x86_64"/>
+
+      <!-- start first drone -->
+      <group ns="drone_1">
+
+            <include file="$(find simulation)/launch/drone.launch">
+
+                  <arg name="name" value="Quadrotor"/>
+                  <arg name="port_to_unity" value="12346"/>
+                  <arg name="port_from_unity" value="9998"/>
+                  <arg name="flight_height" value="1.5"/>
+                  <arg name="start_x" value="2"/>
+                  <arg name="start_y" value="-5"/>
+                  <arg name="start_z" value="1.5"/>
+                  <arg name="start_turn" value="-1"/>
+                  <arg name="potential_scale" value="1e-3"/>
+                  <arg name="gain_scale" value="0"/>
+
+            </include>
+
+      </group>
+
+      <!-- start second drone -->
+      <group ns="drone_2">
+
+            <include file="$(find simulation)/launch/drone.launch">
+
+                  <arg name="name" value="Quadrotor2"/>
+                  <arg name="port_to_unity" value="12345"/>
+                  <arg name="port_from_unity" value="9997"/>
+                  <arg name="flight_height" value="2.0"/>
+                  <arg name="start_x" value="2"/>
+                  <arg name="start_y" value="5"/>
+                  <arg name="start_z" value="2"/>
+                  <arg name="start_turn" value="1"/>
+                  <arg name="potential_scale" value="1e-3"/>
+                  <arg name="gain_scale" value="1"/>
+
+            </include>
+      
+      </group>
+
+      <!-- start state machine -->
+      <node pkg="state_machine" type="state_machine_node.py" name="state_machine"/>
+
+      <!-- start mapping server -->
+      <include file="$(find simulation)/launch/global_map.launch"/>
+
+      <!-- start rviz -->
+      <node pkg="rviz" type="rviz" name="rviz"
+            args="-d $(find nav_pkg)/rviz/simulation.rviz"/>
+
+</launch>

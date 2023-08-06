@@ -1,0 +1,121 @@
+<launch>
+
+    <arg name="name" default="Quadrotor"/>
+    <arg name="port_to_unity" default="10000"/>
+    <arg name="port_from_unity" default="10000"/>
+    <arg name="corrupt_state_estimate" default="true"/>
+    <arg name="flight_height" default="2"/>
+    <arg name="start_x" default="2"/>
+    <arg name="start_y" default="-1"/>
+    <arg name="start_z" default="2"/>
+    <arg name="start_turn" default="0.785" />
+    <arg name="potential_scale" default="1e-3"/>
+    <arg name="gain_scale" default="1"/>
+
+
+    <!-- connection from Unity to ROS -->
+    <include file="$(find simulation)/launch/unity_ros.launch">
+
+        <arg name="name" value="$(arg name)"/>
+        <arg name="port_from_unity" value="$(arg port_from_unity)"/>
+
+    </include>
+    
+
+    <!-- noise injection -->
+    <node pkg="simulation" type="state_estimate_corruptor_node"
+		name="state_estimate_corruptor">
+
+        <param name="true_pose_topic" value="true_pose"/>
+        <param name="true_twist_topic" value="true_twist"/>
+        <param name="est_pose_topic" value="pose_est"/>
+        <param name="est_twist_topic" value="twist_est"/>
+        <param name="est_state_topic" value="current_state_est"/>
+        <param name="body" value="$(arg name)/body"/>
+
+        <!-- random-walk drift factor (grows with distance traveled) -->
+        <param if="$(arg corrupt_state_estimate)" name="drift_rw_factor"
+			value="0.03"/>
+        <param unless="$(arg corrupt_state_estimate)" name="drift_rw_factor"
+			value="0.0"/>
+
+        <!-- independent white noise -->
+        <param if="$(arg corrupt_state_estimate)" name="pos_white_sig"
+			value="0.005"/>
+        <param unless="$(arg corrupt_state_estimate)" name="pos_white_sig"
+			value="0.0"/>
+
+        <!-- average number of seconds between jumps/drift updates -->
+        <param if="$(arg corrupt_state_estimate)" name="jump_seconds"
+			value="20.0"/>
+        <param unless="$(arg corrupt_state_estimate)" name="jump_seconds"
+			value="-1.0"/>
+
+    </node>
+
+
+    <!-- move_base pkg for this drone -->
+    <include file="$(find simulation)/launch/move_base.launch">
+
+        <arg name="name" value="$(arg name)"/>
+        <arg name="potential_scale" value="$(arg potential_scale)"/>
+        <arg name="gain_scale" value="$(arg gain_scale)"/>
+        
+    </include>
+
+
+    <!-- drone controls -->
+    <node pkg="controller_pkg" type="controller_node" name="controller_node"/>
+
+    <node pkg="controller_pkg" type="traj_publisher" name="traj_publisher" >
+
+        <param name="av_desired" value="$(arg name)/av_desired"/>
+        <param name="flight_height" value="$(arg flight_height)"/>
+        <param name="start_x" value="$(arg start_x)"/>
+        <param name="start_y" value="$(arg start_y)"/>
+        <param name="start_z" value="$(arg start_z)"/>
+        <param name="start_turn" value="$(arg start_turn)"/>
+
+    </node>
+
+
+    <!-- manager for all pointcloud nodelets -->
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager"/>
+
+
+    <!-- merged pointcloud with input from both drones -->
+    <node pkg="nodelet" type="nodelet" name="depth_image_to_pc"
+        args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+        
+        <remap from="camera_info" to="realsense/depth/camera_info"/>
+        <remap from="image_rect" to="realsense/depth/image"/>
+        <remap from="points" to="/points"/>
+
+    </node>
+
+
+    <!-- individual pointcloud for each drone -->
+    <node pkg="nodelet" type="nodelet" name="drone_pc"
+        args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+        
+        <remap from="camera_info" to="realsense/depth/camera_info"/>
+        <remap from="image_rect" to="realsense/depth/image"/>
+        <remap from="points" to="points"/>
+
+    </node>
+
+
+    <!-- transform between coordinate systems -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="$(arg name)_to_camera"
+        args="0 0 0 -1.57079632 0 -1.57079632 /$(arg name)/true_body /$(arg name)/Sensors/DepthCamera"/>
+
+
+    <!-- connection from ROS to Unity -->
+    <node name="w_to_unity" pkg="simulation" type="w_to_unity">
+
+        <param name="port_to_unity" type="str" value="$(arg port_to_unity)"/>
+        <param name="pose_topic" type="str" value="true_pose"/>
+
+    </node>
+
+</launch>

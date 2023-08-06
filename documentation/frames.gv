@@ -1,0 +1,14 @@
+digraph G {
+"world" -> "Quadrotor2/av_desired"[label="Broadcaster: /drone_2/traj_publisher\nAverage rate: 454.682 Hz\nMost recent transform: 1690638913.097 ( 0.017 sec old)\nBuffer length: 4.900 sec\n"];
+"world" -> "Quadrotor/av_desired"[label="Broadcaster: /drone_1/traj_publisher\nAverage rate: 475.054 Hz\nMost recent transform: 1690638913.102 ( 0.012 sec old)\nBuffer length: 4.898 sec\n"];
+"world" -> "Quadrotor/body"[label="Broadcaster: /drone_1/state_estimate_corruptor\nAverage rate: 32.975 Hz\nMost recent transform: 1690638913.108 ( 0.006 sec old)\nBuffer length: 4.701 sec\n"];
+"world" -> "Quadrotor/true_body"[label="Broadcaster: /drone_1/unity_ros\nAverage rate: 50.318 Hz\nMost recent transform: 67.240 ( 1690638845.874 sec old)\nBuffer length: 3.140 sec\n"];
+"Quadrotor/true_body" -> "Quadrotor/Sensors/DepthCamera"[label="Broadcaster: /drone_1/Quadrotor_to_camera\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1690638913.114 sec old)\nBuffer length: 0.000 sec\n"];
+"world" -> "Quadrotor2/true_body"[label="Broadcaster: /drone_2/unity_ros\nAverage rate: 50.318 Hz\nMost recent transform: 67.240 ( 1690638845.874 sec old)\nBuffer length: 3.140 sec\n"];
+"world" -> "Quadrotor2/body"[label="Broadcaster: /drone_2/state_estimate_corruptor\nAverage rate: 30.750 Hz\nMost recent transform: 1690638913.111 ( 0.003 sec old)\nBuffer length: 4.683 sec\n"];
+"Quadrotor2/true_body" -> "Quadrotor2/Sensors/DepthCamera"[label="Broadcaster: /drone_2/Quadrotor2_to_camera\nAverage rate: 10000.000 Hz\nMost recent transform: 0.000 ( 1690638913.114 sec old)\nBuffer length: 0.000 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1690638913.114"[ shape=plaintext ] ;
+ }->"world";
+}

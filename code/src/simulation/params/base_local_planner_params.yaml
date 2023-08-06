@@ -1,0 +1,41 @@
+#For full documentation of the parameters in this file, and a list of all the
+#parameters available for TrajectoryPlannerROS, please see
+#http://www.ros.org/wiki/base_local_planner
+TrajectoryPlannerROS:
+  # #Set the acceleration limits of the robot
+  acc_lim_theta: 3.2 
+  acc_lim_x: 2.5
+  acc_lim_y: 2.5
+
+  #Set the velocity limits of the robot
+  max_vel_x: 2 # before 0.5
+  min_vel_x: 0.1
+  max_vel_theta: 1.0
+  #max_rotational_vel: 0.5 #before 1.0
+  min_in_place_rotational_vel: 0.4 #before 0.4
+
+  #The velocity the robot will command when trying to escape from a stuck situation
+  escape_vel: -5
+  
+  #For this example, we'll use a holonomic robot
+  holonomic_robot: true
+
+  #Set the tolerance on achieving a goal
+  xy_goal_tolerance: 0.5 #before 0.1
+  yaw_goal_tolerance: 0.5 #before 0.05
+
+  #We'll configure how long and with what granularity we'll forward simulate trajectories
+  #sim_time: 1.7     #default: 1.0
+  sim_granularity: 0.1
+  vx_samples: 3
+  vtheta_samples: 20    #default: 23
+
+  #meter_scoring    # if true, then settings are robust against changes of costmap
+  meter_scoring: true
+
+
+  #We'll use the Dynamic Window Approach to control instead of Trajectory Rollout for this example
+  #dwa: true
+
+  #Eat up the plan as the robot moves along it
+  #prune_plan: true

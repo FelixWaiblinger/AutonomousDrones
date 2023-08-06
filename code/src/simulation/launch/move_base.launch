@@ -1,0 +1,50 @@
+ <launch>
+
+    <arg name="name" default="Quadrotor"/>
+    <arg name="potential_scale" default="1e-3"/>
+    <arg name="gain_scale" default="1"/>
+
+
+
+    <!-- move_base pkg for each drone-->
+    <node pkg="move_base" type="move_base" name="move_base" respawn="false">
+
+        <rosparam command="load" ns="global_costmap"
+			file="$(find simulation)/params/costmap_common_params_$(arg name).yaml"/>
+        <rosparam command="load" ns="local_costmap"
+			file="$(find simulation)/params/costmap_common_params_$(arg name).yaml"/>
+        <rosparam command="load"
+			file="$(find simulation)/params/local_costmap_params_$(arg name).yaml"/>
+        <rosparam command="load"
+			file="$(find simulation)/params/global_costmap_params_$(arg name).yaml"/>
+        <rosparam command="load"
+			file="$(find simulation)/params/base_local_planner_params.yaml"/>
+        <rosparam command="load"
+			file="$(find simulation)/params/global_planner_params.yaml"/>
+
+        <param name="base_global_planner" value="navfn/NavfnROS"/>
+        <param name="planner_frequency" value="3.0"/>
+        <param name="planner_patience" value="3.0"/>
+        <param name="controller_frequency"  value="5.0"/>
+
+    </node>
+        
+
+    <node pkg="nav_pkg" type="explore" name="explore"
+        respawn="false" launch-prefix="bash -c 'sleep 5.0; $0 $@' ">
+        
+        <param name="robot_base_frame" value="$(arg name)/body"/>
+        <param name="costmap_topic" value="/projected_map"/>
+        <param name="costmap_updates_topic" value="map_updates"/>
+        <param name="visualize" value="true"/>
+        <param name="planner_frequency" value="1"/>
+        <param name="progress_timeout" value="7"/>
+        <param name="potential_scale" value="$(arg potential_scale)"/>
+        <param name="orientation_scale" value="0.0"/>
+        <param name="gain_scale" value="$(arg gain_scale)"/>
+        <param name="transform_tolerance" value="0.3"/>
+        <param name="min_frontier_size" value="0.75"/>
+
+    </node>
+
+</launch>

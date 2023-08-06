@@ -1,0 +1,12 @@
+# build files
+.catkin_workspace
+
+# folders
+.vscode/
+code/logs/
+code/build/
+code/devel/
+code/.catkin_tools/
+
+# rosbags
+*.bag
